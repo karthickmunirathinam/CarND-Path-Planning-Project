@@ -1,8 +1,8 @@
 # CarND-Path-Planning-Project
 Self-Driving Car Engineer Nanodegree Program
-   
+
 ### Simulator.
-You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2).  
+You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2).
 
 To run the simulator on Mac/Linux, first make the binary file executable with the following command:
 ```shell
@@ -43,13 +43,13 @@ Here is the data provided from the Simulator to the C++ Program
 #### Previous path data given to the Planner
 
 //Note: Return the previous list but with processed points removed, can be a nice tool to show how far along
-the path has processed since last time. 
+the path has processed since last time.
 
 ["previous_path_x"] The previous list of x points previously given to the simulator
 
 ["previous_path_y"] The previous list of y points previously given to the simulator
 
-#### Previous path's end s and d values 
+#### Previous path's end s and d values
 
 ["end_path_s"] The previous list's last point's frenet s value
 
@@ -57,7 +57,7 @@ the path has processed since last time.
 
 #### Sensor Fusion Data, a list of all other car's attributes on the same side of the road. (No Noise)
 
-["sensor_fusion"] A 2d vector of cars and then that car's [car's unique ID, car's x position in map coordinates, car's y position in map coordinates, car's x velocity in m/s, car's y velocity in m/s, car's s position in frenet coordinates, car's d position in frenet coordinates. 
+["sensor_fusion"] A 2d vector of cars and then that car's [car's unique ID, car's x position in map coordinates, car's y position in map coordinates, car's x velocity in m/s, car's y velocity in m/s, car's s position in frenet coordinates, car's d position in frenet coordinates.
 
 ## Details
 
@@ -87,7 +87,7 @@ A really helpful resource for doing this project and creating smooth trajectorie
   * Run either `install-mac.sh` or `install-ubuntu.sh`.
   * If you install from source, checkout to commit `e94b6e1`, i.e.
     ```
-    git clone https://github.com/uWebSockets/uWebSockets 
+    git clone https://github.com/uWebSockets/uWebSockets
     cd uWebSockets
     git checkout e94b6e1
     ```
@@ -111,35 +111,47 @@ Note: regardless of the changes you make, your project must be buildable using
 cmake and make!
 
 
-## Call for IDE Profiles Pull Requests
+## Compilation
 
-Help your fellow students!
+The code compile without errors or warnings. The src/spline.h library is added to the project. The helpers.h contains all the helper functions used in the project.
 
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to ensure
-that students don't feel pressured to use one IDE or another.
+## Validation
 
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
+1. The car was drive close to  miles without any incident.
+2. The car was able to drive within the maximum speed limit of 50mph.
+3. The maximum Acceleration and Jerk was not exceeded.
+4. No collision was observed in the entire duration.
+5. The car changes its lane when there is a possibility to change lanes.
 
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
+![capture_01](path_planner.png)
 
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
+## Reflection [main.cpp@line 109](https://github.com/karthickmunirathinam/CarND-Path-Planning-Project/blob/master/src/main.cpp#109)
+ The core part of the project involves in implementing three tasks
+ 1. Prediction
+ 2. Behaviour
+ 3. Trajectory
 
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
+### Prediction
 
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
+1. For the vehicle to drive forward  `next_x_values` and `next_y_values` needed to be updated with points for the trajectory.
+2. The sensor fusion data of traffic vehicles- `[id,x,y,vx,vy,s,d]`, helps us to analyze the environment at the current state of the ego vehicle.
+3. Currently, we assume that we have only three lanes and each lane has 4 meter width.
+4. Frenet coordinate system `[s,d]` ease the relative distance from the traffic vehicle to the ego vehicle.
+5. To avoid collision to the vehicle, the prediction is performed for the traffic vehicle and the the ego vehicle.
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+### Behaviour
+1. Based on the prediction, if the gap between them is within 30m the corresponding behaviour is executed.
+2. The behaviours include increase velocity, decrease velocity, change lane to the left or right.
+3. when there is enough gap between the vehicle in front and the ego vehicle velocity is less then the maximum velocity the vehicle accelerates.
+4. If the there is no lane change possible and the the vehicle is in from is slower the ego vehicle tends to decelerates.
+5. The vehicle lane change is possible only if the slow moving vehicle is in front and the vehicles in adjecent lanes has enough gap for smoother lane change.
+6. The change lane to the left is given preference given both adjacent lane change is possible according to the traffic rules.
+7. However, if the left lane change is not possible right lane change is initiate. Caution: this behaviour is not realitic and violates the traffic rules.
+8. Many other logic can be applied like switching back to the right lane when the ego vehicle is in left most lane. Many more preconditions along with state machine based behiour planning can be implemented for highway automated driving.
+9. This project however assumes the simple cases for the conceptual undertanding.
 
+### Trajectory
+
+1. The algorithm implemented has two basic features, which are keep lane and change lane.
+2. The trajectory is has to maintain continuity and smoother for the lane change to happen with minimal jerk factor.
+3. In order to make it smoother transition I have used spline library `src/spline.h`.
