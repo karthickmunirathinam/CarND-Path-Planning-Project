@@ -117,7 +117,7 @@ The code compile without errors or warnings. The src/spline.h library is added t
 
 ## Validation
 
-1. The car was drive close to  miles without any incident.
+1. The car was drive close to  5 miles without any incident.
 2. The car was able to drive within the maximum speed limit of 50mph.
 3. The maximum Acceleration and Jerk was not exceeded.
 4. No collision was observed in the entire duration.
